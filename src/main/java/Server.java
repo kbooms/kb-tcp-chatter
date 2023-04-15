@@ -18,13 +18,16 @@ public class Server implements Runnable {
     public Server() {
         connections = new ArrayList<>();
         done = false;
+        pool = Executors.newCachedThreadPool();
     }
     @Override
     public void run() {
         try {
+            server = new ServerSocket(80); // establish a new server and listen on port 80
+//            pool = Executors.newCachedThreadPool();
+
             while (!done) {
-                server = new ServerSocket(80); // establish a new server and listen on port 80
-                pool = Executors.newCachedThreadPool();
+
                 Socket client = server.accept(); // when the server accepts a connection a new client socket is created
                 ConnectionHandler handler = new ConnectionHandler(client);
                 connections.add(handler);
@@ -48,6 +51,7 @@ public class Server implements Runnable {
     public void shutdown() {
         try {
             done = true;
+            pool.shutdown();
             if (!server.isClosed()) {
                 server.close();
             }
